@@ -100,7 +100,10 @@ class RequestManager(object):
                 block_names.append((dataset_name, df.Block.to_real_name(block_name)))
 
         dataset_ids = self.history.db.select_many('datasets', 'id', 'name', dataset_names)
-        block_ids = self.history.db.select_many('blocks', 'id', 'name', block_names)
+
+        sql = 'SELECT b.`id` FROM `blocks` AS b'
+        sql += ' INNER JOIN `datasets` AS d ON d.`id` = b.`dataset_id`'
+        block_ids = self.history.db.execute_many(sql, MySQL.bare('(d.`name`, b.`name`)'), block_names)
 
         return dataset_ids, block_ids
 
